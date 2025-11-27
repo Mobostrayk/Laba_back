@@ -6,6 +6,7 @@ import os
 from fastapi.staticfiles import StaticFiles
 from models import db_helper, Base
 from api import router  
+from fastapi_pagination import add_pagination
 
 
 @asynccontextmanager
@@ -19,6 +20,8 @@ async def lifespan(app: FastAPI):
 main_app = FastAPI(lifespan=lifespan)
 main_app.include_router(router)  
 main_app.mount("/static", StaticFiles(directory="static"), name="static")
+
+add_pagination(main_app)
 
 if __name__ == "__main__":
     uvicorn.run(
