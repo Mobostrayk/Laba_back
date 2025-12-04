@@ -96,7 +96,6 @@ class RecipeUpdate(BaseModel):
     allergen_ids: List[int] = Field(default_factory=list)
     recipe_ingredients: List[RecipeIngredientCreate] = Field(default_factory=list)
 
-# ФИЛЬТРЫ КАК В РАБОЧЕМ КОДЕ
 class RecipeFilterStandard(Filter):
     title__like: Optional[str] = None
     order_by: Optional[List[str]] = None
@@ -108,7 +107,6 @@ class RecipeFilterStandard(Filter):
         search_model_fields = ["title"]
 
     def sort(self, stmt):
-        """Кастомная сортировка"""
         if not self.order_by:
             return stmt
 
@@ -135,7 +133,6 @@ class RecipeFilterIngredients(Filter):
             )
         return stmt
 
-# ВСПОМОГАТЕЛЬНАЯ ФУНКЦИЯ
 async def get_recipe_with_relations(session: AsyncSession, id: int):
     stmt = (
         select(Recipe)
@@ -149,7 +146,6 @@ async def get_recipe_with_relations(session: AsyncSession, id: int):
     result = await session.scalar(stmt)
     return result
 
-# НОВЫЙ МАРШРУТ ДЛЯ ФИЛЬТРАЦИИ И ПАГИНАЦИИ
 @router.get("", response_model=Page[RecipeRead])
 async def get_recipes(
     session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
@@ -165,7 +161,6 @@ async def get_recipes(
         )
     )
 
-    # Применяем фильтры
     stmt = filter_standard.filter(stmt)
     stmt = filter_standard.sort(stmt)
     stmt = filter_ingredients.filter(stmt)
@@ -173,7 +168,7 @@ async def get_recipes(
     result = await paginate(session, stmt)
     return result
 
-# СТАРЫЕ МАРШРУТЫ (немного обновлены для консистентности)
+
 @router.post("", response_model=RecipeRead, status_code=status.HTTP_201_CREATED)
 async def create_recipe(
     session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
