@@ -1,3 +1,4 @@
+# models/recipe.py
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import String, Text, Integer, ForeignKey, Table, Column
 from typing import List, Optional
@@ -36,6 +37,10 @@ class Recipe(Base):
         ForeignKey("cuisines.id"), 
         nullable=True
     )
+    author_id: Mapped[int] = mapped_column(
+        ForeignKey("user.id"),
+        nullable=False
+    )
 
     # Связи
     cuisine: Mapped[Optional["Cuisine"]] = relationship(back_populates="recipes")
@@ -47,6 +52,7 @@ class Recipe(Base):
         back_populates="recipe",
         cascade="all, delete-orphan"
     )
+    author: Mapped["User"] = relationship(back_populates="recipes")
 
     def __repr__(self):
         return f"Recipe(id={self.id}, title={self.title})"
