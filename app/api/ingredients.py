@@ -189,7 +189,6 @@ async def get_recipes_by_ingredient(
             detail=f"Ingredient with id {id} not found"
         )
 
-    # Базовый запрос
     stmt = (
         select(Recipe)
         .join(Recipe.recipe_ingredients)
@@ -198,11 +197,8 @@ async def get_recipes_by_ingredient(
     )
 
     include_list = []
-    # Обработка параметра include
     if include:
         include_list = [item.strip() for item in include.split(",")]
-        
-        # Проверяем корректность параметров include
         for item in include_list:
             if item not in ["cuisine", "ingredients", "allergens"]:
                 raise HTTPException(
@@ -223,13 +219,11 @@ async def get_recipes_by_ingredient(
         if include_options:
             stmt = stmt.options(*include_options)
 
-    # Допустимые поля для select
     ALLOWED_FIELDS = {"id", "title", "difficulty", "description", "cooking_time"}
     
-    requested_fields = ALLOWED_FIELDS  # По умолчанию все поля
+    requested_fields = ALLOWED_FIELDS  
     if select_var:
         requested_fields = {field.strip() for field in select_var.split(",")}
-        # Проверяем, что запрошенные поля допустимы
         invalid_fields = requested_fields - ALLOWED_FIELDS
         if invalid_fields:
             raise HTTPException(
@@ -237,20 +231,16 @@ async def get_recipes_by_ingredient(
                 detail=f"Invalid fields: {', '.join(invalid_fields)}. Allowed fields: {', '.join(ALLOWED_FIELDS)}"
             )
 
-    # Выполняем запрос
     results = await session.scalars(stmt)
     recipes = results.unique().all()
 
     if not recipes:
         return []
 
-    # Фильтрация полей в ответе
     if select_var:
-        # Создаём словари с только запрошенными полями
         filtered_recipes = []
         for recipe in recipes:
             recipe_dict = {}
-            # Добавляем только запрошенные поля
             for field in requested_fields:
                 if field == "id":
                     recipe_dict["id"] = recipe.id
@@ -263,7 +253,6 @@ async def get_recipes_by_ingredient(
                 elif field == "difficulty":
                     recipe_dict["difficulty"] = recipe.difficulty
             
-            # Добавляем связанные данные, если они запрошены через include
             if include_list:
                 if "cuisine" in include_list and recipe.cuisine:
                     recipe_dict["cuisine"] = {
@@ -291,7 +280,6 @@ async def get_recipes_by_ingredient(
             filtered_recipes.append(recipe_dict)
         return filtered_recipes
     
-    # Если select_var не указан, но есть include
     if include_list:
         result = []
         for recipe in recipes:
@@ -331,7 +319,6 @@ async def get_recipes_by_ingredient(
             result.append(data)
         return result
     
-    # Если не указаны ни select, ни include, возвращаем базовые данные
     return [
         {
             "id": recipe.id,

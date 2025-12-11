@@ -5,6 +5,9 @@ from .allergen import Allergen
 from .ingredient import Ingredient
 from .db_helper import db_helper
 from .recipe import Recipe, RecipeIngredient, recipe_allergen_association
+from .users import User
+from .access_token import AccessToken
+
 
 __all__ = [
     "Base",
@@ -16,5 +19,7 @@ __all__ = [
     "Recipe",
     "RecipeIngredient",
     "MeasurementEnum",
-    "recipe_allergen_association"
+    "recipe_allergen_association",
+    "User",
+    "AccessToken",
 ]
