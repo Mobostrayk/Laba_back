@@ -38,7 +38,8 @@ class MeasurementEnum(IntEnum):
 
 class UserReadShort(BaseModel):
     id: int
-    email: str
+    first_name: Optional[str]
+    last_name: Optional[str]
 
     class Config:
         from_attributes = True
@@ -64,14 +65,15 @@ class IngredientRead(BaseModel):
     class Config:
         from_attributes = True
 
-class RecipeIngredientRead(BaseModel):
-    id: int
-    ingredient: IngredientRead
+class RecipeIngredientOutput(BaseModel):
+    id: int = Field(..., alias="ingredient.id")
     quantity: int
     measurement: MeasurementEnum
 
     class Config:
         from_attributes = True
+        populate_by_name = True
+
 
 class RecipeIngredientCreate(BaseModel):
     ingredient_id: int
@@ -86,7 +88,7 @@ class RecipeRead(BaseModel):
     difficulty: int
     cuisine: Optional[CuisineRead] = None
     allergens: List[AllergenRead] = []
-    recipe_ingredients: List[RecipeIngredientRead] = []
+    ingredients: List[RecipeIngredientOutput] = Field(..., alias="recipe_ingredients")
     author: UserReadShort
 
     class Config:
